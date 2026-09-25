@@ -107,13 +107,12 @@ async def ask_openrouter(message, language):
         data = response.json()
         return data["choices"][0]["message"]["content"]
 
-    except httpx.RequestError as e:
-    print("OpenRouter connection error:", repr(e))
-    raise HTTPException(
-        status_code=502,
-        detail=f"Could not connect to OpenRouter: {e}",
-    )
-
+        except httpx.RequestError as e:
+        print("OpenRouter connection error:", repr(e))
+        raise HTTPException(
+            status_code=502,
+            detail=f"Could not connect to OpenRouter: {e}",
+        )
 
 @app.get("/")
 def home():
