@@ -1,4 +1,4 @@
-const API_URL="http://192.168.31.86:8000";
+const API_URL="https://ds-ai-a8h7.onrender.com";
 const translations={en:{subtitle:"Ask questions, search for information, and chat with Nova AI.",placeholder:"Ask Nova anything..."},hi:{subtitle:"सवाल पूछें, जानकारी खोजें और Nova AI से चैट करें।",placeholder:"Nova से कुछ पूछें..."},pt:{subtitle:"Faça perguntas, pesquise informações e converse com a Nova AI.",placeholder:"Pergunte qualquer coisa à Nova..."},de:{subtitle:"Stelle Fragen, suche nach Informationen und chatte mit Nova AI.",placeholder:"Frag Nova etwas..."}};
 const language=document.getElementById("language"),message=document.getElementById("message"),messages=document.getElementById("messages");
 language.addEventListener("change",()=>{const x=translations[language.value];document.getElementById("subtitle").textContent=x.subtitle;message.placeholder=x.placeholder});
