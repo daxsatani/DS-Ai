@@ -56,13 +56,12 @@ async def ask_openrouter(message, language):
     if not api_url or not api_key or not model:
         return (
             "Nova is not configured yet. "
-            "Please check the OpenRouter settings in server/.env."
+            "Please check the OpenRouter settings."
         )
 
     language_name = get_language(language)
 
     models = [model]
-
     if fallback_model and fallback_model != model:
         models.append(fallback_model)
 
@@ -98,21 +97,33 @@ async def ask_openrouter(message, language):
             )
 
         if response.status_code >= 400:
+            print("OpenRouter HTTP error:", response.status_code)
             print(response.text)
             raise HTTPException(
                 status_code=502,
-                detail="OpenRouter returned an error. Check the server terminal for details.",
+                detail=(
+                    f"OpenRouter returned HTTP {response.status_code}. "
+                    "Check the Render logs for details."
+                ),
             )
 
         data = response.json()
-        return data["choices"][0]["message"]["content"]
 
-        except httpx.RequestError as e:
+        if "choices" not in data or not data["choices"]:
+            print("Unexpected OpenRouter response:", data)
+            raise HTTPException(
+            status_code=502,
+            detail="OpenRouter returned an unexpected response.",
+        )
+
+        return data["choices"][0]["message"]["content"]
+    except httpx.RequestError as e:
         print("OpenRouter connection error:", repr(e))
         raise HTTPException(
             status_code=502,
             detail=f"Could not connect to OpenRouter: {e}",
         )
+
 
 @app.get("/")
 def home():
@@ -134,15 +145,9 @@ async def chat(request: ChatRequest):
             detail="Message cannot be empty.",
         )
 
-    reply = await ask_openrouter(
-        message,
-        request.language,
-    )
+    reply = await ask_openrouter(message, request.language)
 
-    return {
-        "type": "text",
-        "reply": reply,
-    }
+    return {"type": "text", "reply": reply}
 
 
 @app.post("/report")
@@ -156,39 +161,26 @@ async def report(request: ReportRequest):
         )
 
     try:
-        reports = json.loads(
-            DATA_FILE.read_text(encoding="utf-8")
-        )
+        reports = json.loads(DATA_FILE.read_text(encoding="utf-8"))
     except Exception:
         reports = []
 
-    reports.append(
-        {
-            "message": message,
-            "page": request.page,
-        }
-    )
+    reports.append({
+        "message": message,
+        "page": request.page,
+    })
 
     DATA_FILE.write_text(
-        json.dumps(
-            reports,
-            indent=2,
-            ensure_ascii=False,
-        ),
+        json.dumps(reports, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
 
-    return {
-        "ok": True,
-        "message": "Report received.",
-    }
+    return {"ok": True, "message": "Report received."}
 
 
 @app.get("/reports")
 def reports():
     try:
-        return json.loads(
-            DATA_FILE.read_text(encoding="utf-8")
-        )
+        return json.loads(DATA_FILE.read_text(encoding="utf-8"))
     except Exception:
         return []
