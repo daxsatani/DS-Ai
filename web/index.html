@@ -1,6 +1,113 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Nova AI</title><link rel="stylesheet" href="style.css"></head><body>
-<nav><div class="logo">✦ DS-Ai</div><select id="language"><option value="en">English</option><option value="hi">हिन्दी</option><option value="pt">Português</option><option value="de">Deutsch</option></select></nav>
-<section class="hero"><div class="badge">Multilingual AI Assistant</div><h1>Meet your <span>AI Assistant</span></h1><p id="subtitle">Ask questions, search for information, and chat with DS-Ai.</p><a href="#chat" class="hero-button">Try DS-Ai</a></section>
-<section id="chat" class="chat"><h2>Chat with Nova</h2><div id="messages"><div class="message bot">Hello! I'm DS-Ai. How can I help you?</div></div><form id="chatForm"><input id="message" placeholder="Ask Nova anything..." autocomplete="off"><button>Send</button></form></section>
-<section class="report"><h2>Found a mistake?</h2><p>Tell us about it and we'll review the report.</p><form id="reportForm"><textarea id="reportMessage" placeholder="Describe the mistake..." required></textarea><input id="reportPage" placeholder="Which page?"><button>Send Report</button></form><p id="reportStatus"></p></section>
-<section class="features"><div><h3>🤖 AI</h3><p>Powered through your server-side AI connection.</p></div><div><h3>🌍 Languages</h3><p>English, Hindi, Brazilian Portuguese and German.</p></div><div><h3>📝 Reports</h3><p>Visitors can report problems directly from the website.</p></div></section><footer>Nova AI © 2026</footer><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+  <div class="logo">✦ DS-Ai</div>
+
+  <select id="language">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="gu">ગુજરાતી</option>
+    <option value="pt">Português</option>
+    <option value="de">Deutsch</option>
+  </select>
+</nav>
+
+<section class="hero">
+  <div class="badge">Multilingual AI Assistant</div>
+
+  <h1>Meet your <span>AI Assistant</span></h1>
+
+  <p id="subtitle">
+    Ask questions, search for information, and chat with DS-Ai.
+  </p>
+
+  <a href="#chat" class="hero-button">Try DS-Ai</a>
+</section>
+
+<section id="chat" class="chat">
+  <h2>Chat with Nova</h2>
+
+  <div id="messages">
+    <div class="message bot">
+      Hello! I'm DS-Ai. How can I help you?
+    </div>
+  </div>
+
+  <form id="chatForm">
+    <input
+      id="message"
+      placeholder="Ask Nova anything..."
+      autocomplete="off"
+    >
+
+    <button type="submit">Send</button>
+  </form>
+</section>
+
+<section class="report">
+  <h2>Found a mistake?</h2>
+
+  <p>
+    Tell us about it and we'll review the report.
+  </p>
+
+  <form id="reportForm">
+    <textarea
+      id="reportMessage"
+      placeholder="Describe the mistake..."
+      required
+    ></textarea>
+
+    <input
+      id="reportPage"
+      placeholder="Which page?"
+    >
+
+    <button type="submit">Send Report</button>
+  </form>
+
+  <p id="reportStatus"></p>
+</section>
+
+<section class="features">
+
+  <div>
+    <h3>🤖 AI</h3>
+    <p>
+      Powered through your server-side AI connection.
+    </p>
+  </div>
+
+  <div>
+    <h3>🌍 Languages</h3>
+    <p>
+      English, Hindi, Gujarati, Brazilian Portuguese and German.
+    </p>
+  </div>
+
+  <div>
+    <h3>📝 Reports</h3>
+    <p>
+      Visitors can report problems directly from the website.
+    </p>
+  </div>
+
+</section>
+
+<footer>
+  Nova AI © 2026
+</footer>
+
+<script src="app.js"></script>
+
+</body>
+</html>

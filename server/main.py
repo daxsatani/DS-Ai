@@ -8,9 +8,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+
 load_dotenv()
 
+
 app = FastAPI(title="Nova AI")
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,11 +23,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 DATA_FILE = Path(__file__).parent.parent / "data" / "reports.json"
-DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+DATA_FILE.parent.mkdir(
+    parents=True,
+    exist_ok=True
+)
+
 
 if not DATA_FILE.exists():
-    DATA_FILE.write_text("[]", encoding="utf-8")
+    DATA_FILE.write_text(
+        "[]",
+        encoding="utf-8"
+    )
 
 
 class ChatRequest(BaseModel):
@@ -38,36 +50,49 @@ class ReportRequest(BaseModel):
 
 
 def get_language(code):
+
     languages = {
         "en": "English",
         "hi": "Hindi",
+        "gu": "Gujarati",
         "pt": "Brazilian Portuguese",
         "de": "German",
     }
-    return languages.get(code, "English")
+
+    return languages.get(
+        code,
+        "English"
+    )
 
 
 async def ask_openrouter(message, language):
+
     api_url = os.getenv("AI_API_URL")
     api_key = os.getenv("AI_API_KEY")
     model = os.getenv("AI_MODEL")
 
     if not api_url or not api_key or not model:
-        return "Nova is not configured yet. Please check the AI settings."
+        return (
+            "Nova is not configured yet. "
+            "Please check the AI settings."
+        )
 
     language_name = get_language(language)
 
     payload = {
         "model": model,
+
         "messages": [
             {
                 "role": "system",
                 "content": (
-                    "You are Nova AI, a helpful multilingual assistant. "
+                    "You are Nova AI, a helpful "
+                    "multilingual assistant. "
                     f"Answer in {language_name}. "
                     "Be clear, useful and accurate."
                 ),
             },
+
             {
                 "role": "user",
                 "content": message,
@@ -81,7 +106,11 @@ async def ask_openrouter(message, language):
     }
 
     try:
-        async with httpx.AsyncClient(timeout=60) as client:
+
+        async with httpx.AsyncClient(
+            timeout=60
+        ) as client:
+
             response = await client.post(
                 api_url,
                 json=payload,
@@ -89,78 +118,101 @@ async def ask_openrouter(message, language):
             )
 
         if response.status_code >= 400:
-            print("Groq error:", response.text)
+
+            print(
+                "Groq error:",
+                response.text
+            )
+
             raise HTTPException(
                 status_code=502,
-                detail="Groq returned an error. Check the Render logs.",
+                detail=(
+                    "Groq returned an error. "
+                    "Check the Render logs."
+                ),
             )
 
         data = response.json()
+
         return data["choices"][0]["message"]["content"]
 
     except httpx.RequestError as e:
-        print("Groq connection error:", repr(e))
-        raise HTTPException(
-            status_code=502,
-            detail=f"Could not connect to Groq: {e}",
+
+        print(
+            "Groq connection error:",
+            repr(e)
         )
 
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                f"Could not connect to Groq: {e}"
+            ),
+        )
+
+
 @app.get("/")
-def home():
-    return {"name": "Nova AI", "status": "running"}
+async def root():
+
+    return {
+        "name": "Nova AI",
+        "status": "running"
+    }
 
 
 @app.get("/health")
-def health():
-    return {"ok": True}
+async def health():
+
+    return {
+        "ok": True
+    }
 
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
-    message = request.message.strip()
 
-    if not message:
-        raise HTTPException(
-            status_code=400,
-            detail="Message cannot be empty.",
-        )
+    reply = await ask_openrouter(
+        request.message,
+        request.language
+    )
 
-    reply = await ask_openrouter(message, request.language)
-
-    return {"type": "text", "reply": reply}
+    return {
+        "reply": reply
+    }
 
 
 @app.post("/report")
 async def report(request: ReportRequest):
-    message = request.message.strip()
 
-    if not message:
-        raise HTTPException(
-            status_code=400,
-            detail="Report cannot be empty.",
+    try:
+
+        reports = json.loads(
+            DATA_FILE.read_text(
+                encoding="utf-8"
+            )
         )
 
-    try:
-        reports = json.loads(DATA_FILE.read_text(encoding="utf-8"))
     except Exception:
+
         reports = []
 
-    reports.append({
-        "message": message,
-        "page": request.page,
-    })
-
-    DATA_FILE.write_text(
-        json.dumps(reports, indent=2, ensure_ascii=False),
-        encoding="utf-8",
+    reports.append(
+        {
+            "message": request.message,
+            "page": request.page,
+        }
     )
 
-    return {"ok": True, "message": "Report received."}
+    DATA_FILE.write_text(
+        json.dumps(
+            reports,
+            ensure_ascii=False,
+            indent=2
+        ),
+        encoding="utf-8"
+    )
 
-
-@app.get("/reports")
-def reports():
-    try:
-        return json.loads(DATA_FILE.read_text(encoding="utf-8"))
-    except Exception:
-        return []
+    return {
+        "ok": True,
+        "message": "Report saved."
+    }
