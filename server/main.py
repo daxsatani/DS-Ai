@@ -51,22 +51,14 @@ async def ask_openrouter(message, language):
     api_url = os.getenv("AI_API_URL")
     api_key = os.getenv("AI_API_KEY")
     model = os.getenv("AI_MODEL")
-    fallback_model = os.getenv("AI_FALLBACK_MODEL")
 
     if not api_url or not api_key or not model:
-        return (
-            "Nova is not configured yet. "
-            "Please check the OpenRouter settings."
-        )
+        return "Nova is not configured yet. Please check the AI settings."
 
     language_name = get_language(language)
 
-    models = [model]
-    if fallback_model and fallback_model != model:
-        models.append(fallback_model)
-
     payload = {
-        "models": models,
+        "model": model,
         "messages": [
             {
                 "role": "system",
@@ -97,33 +89,21 @@ async def ask_openrouter(message, language):
             )
 
         if response.status_code >= 400:
-            print("OpenRouter HTTP error:", response.status_code)
-            print(response.text)
+            print("Groq error:", response.text)
             raise HTTPException(
                 status_code=502,
-                detail=(
-                    f"OpenRouter returned HTTP {response.status_code}. "
-                    "Check the Render logs for details."
-                ),
+                detail="Groq returned an error. Check the Render logs.",
             )
 
         data = response.json()
-
-        if "choices" not in data or not data["choices"]:
-            print("Unexpected OpenRouter response:", data)
-            raise HTTPException(
-            status_code=502,
-            detail="OpenRouter returned an unexpected response.",
-        )
-
         return data["choices"][0]["message"]["content"]
+
     except httpx.RequestError as e:
-        print("OpenRouter connection error:", repr(e))
+        print("Groq connection error:", repr(e))
         raise HTTPException(
             status_code=502,
-            detail=f"Could not connect to OpenRouter: {e}",
+            detail=f"Could not connect to Groq: {e}",
         )
-
 
 @app.get("/")
 def home():
